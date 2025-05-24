@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react'
+import { useState, useEffect, type ChangeEvent } from 'react'
 import type { DraftExpense, Value } from '../types'
 import { categories } from '../data/categories'
 import DatePicker from 'react-date-picker'
@@ -22,7 +22,20 @@ export default function ExpenseForm() {
 
   })
   const [error, setError] = useState('')
-  const {dispatch} = useBudget()
+  const {dispatch, state} = useBudget()
+
+  useEffect(() => {
+
+    if (state.editingId) {
+
+      const editingExpense = state.expenses.filter(currentExpense => currentExpense.id === state.editingId)[0]
+      setExpense(editingExpense)
+      
+    }
+    
+  
+  }, [state.editingId])
+  
 
   const handleChange =  (e:ChangeEvent<HTMLInputElement>| ChangeEvent<HTMLSelectElement>) =>{
 
@@ -57,9 +70,17 @@ export default function ExpenseForm() {
       
       
     }
-    // agregar un nuevo gasto
+    // agregar oactualizar un gasto
 
-    dispatch({type: 'add-expense', payload:{expense}})
+    if (state.editingId) {
+
+      dispatch({type:'update-expense', payload: {expense: {id: state.editingId, ...expense}}})
+      
+    } else {
+      
+      dispatch({type: 'add-expense', payload:{expense}})
+    }
+
 
 
     // limpiar el formulario despues de agregar el gasto
