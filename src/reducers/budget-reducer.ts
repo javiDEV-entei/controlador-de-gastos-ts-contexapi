@@ -1,4 +1,4 @@
-import type { DraftExpense, Expense } from "../types"
+import type { Category, DraftExpense, Expense } from "../types"
 import {v4 as uuidv4} from 'uuid'
 
 
@@ -10,7 +10,9 @@ export type budGetActions =
 {type: 'add-expense' , payload: {expense: DraftExpense}} |
 {type: 'remove expense', payload: {id: Expense['id']}} |
 {type: 'get-expense-by-id', payload: {id: Expense ['id']}}|
-{type: 'update-expense', payload: {expense: Expense}}
+{type: 'update-expense', payload: {expense: Expense}} |
+{type: 'reset-app'}|
+{type: 'add-filter-category', payload: {id: Category['id']}}
 
 
 
@@ -21,6 +23,7 @@ export type BudgetState = {
     modal: boolean
     expenses : Expense[]
     editingId: Expense['id']
+    currentCategory: Category['id']
 
 }
 
@@ -45,7 +48,8 @@ export const initialState: BudgetState = {
     budget: initialBudget(),
     modal: false,
     expenses:localStorageExpenses(),
-    editingId: ''
+    editingId: '',
+    currentCategory: ''
 
 }
 
@@ -90,7 +94,8 @@ export const budgetReducer =(
         const expense = createExpense(action.payload.expense)
         return{
             ...state,
-            expenses:[...state.expenses, expense]
+            expenses:[...state.expenses, expense],
+            modal: false
         }
         
     }
@@ -121,6 +126,26 @@ export const budgetReducer =(
             expenses: state.expenses.map(expense => expense.id === action.payload.expense.id ? action.payload.expense : expense),
             modal: false,
             editingId: ''
+        }
+        
+    }
+
+    if (action.type === 'reset-app') {
+
+        return {
+            ...state,
+            budget: 0,
+            expenses:[]
+            
+        }
+        
+    }
+
+    if (action.type === 'add-filter-category') {
+
+        return{
+            ...state,
+            currentCategory: action.payload.id
         }
         
     }
